@@ -9,7 +9,7 @@ let db
 const connectDB = async () => {
   try {
     await client.connect()
-    db = client.db('image-quiz')
+    db = client.db(process.env.DB_NAME)
     console.log('✅ MongoDB connected')
   } catch (err) {
     console.error('❌ MongoDB connection error:', err.message)
