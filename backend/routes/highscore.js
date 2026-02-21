@@ -1,17 +1,21 @@
 import { Router } from 'express'
-import User from '../models/User.js'
+import { ObjectId } from 'mongodb'
+import { getDB } from '../config/db.js'
 
 const router = Router()
 
 // GET /api/highscore - Get top 10 players (public)
 router.get('/', async (req, res) => {
   try {
-    const topPlayers = await User.find({}, 'email score')
+    const db = getDB()
+    const topPlayers = await db.collection('users')
+      .find({}, { projection: { password: 0 } })
       .sort({ score: -1 })
       .limit(10)
+      .toArray()
 
     res.json(topPlayers.map(p => ({
-      id: p._id,
+      id: p._id.toString(),
       email: p.email,
       score: p.score
     })))
@@ -23,10 +27,11 @@ router.get('/', async (req, res) => {
 // GET /api/highscore/rank/:userId - Get user rank (public)
 router.get('/rank/:userId', async (req, res) => {
   try {
-    const user = await User.findById(req.params.userId, 'score email')
+    const db = getDB()
+    const user = await db.collection('users').findOne({ _id: new ObjectId(req.params.userId) })
     if (!user) return res.status(404).json({ error: 'User not found.' })
 
-    const rank = await User.countDocuments({ score: { $gt: user.score } }) + 1
+    const rank = await db.collection('users').countDocuments({ score: { $gt: user.score } }) + 1
 
     res.json({
       rank,
