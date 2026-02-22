@@ -1,0 +1,179 @@
+{
+  "info": {
+    "_postman_id": "c6f42ad0-3da3-4bdf-b25d-8c0af9312810",
+    "name": "ImageQuiz-WA Backend (Real API Routes)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3000" },
+    { "key": "token", "value": "" }
+  ],
+
+  "item": [
+
+    {
+      "name": "Auth",
+      "item": [
+
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"test123\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/register"
+          }
+        },
+
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"test123\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/login"
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "Quiz",
+      "item": [
+
+        {
+          "name": "Get Words",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/quiz/words"
+          }
+        },
+
+        {
+          "name": "Get Score",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/quiz/score"
+          }
+        },
+
+        {
+          "name": "Update Score",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"score\": 15\n}"
+            },
+            "url": "{{base_url}}/api/quiz/score"
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "Highscore",
+      "item": [
+
+        {
+          "name": "Get Top 10",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/highscore"
+          }
+        },
+
+        {
+          "name": "Get User Rank",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/highscore/rank/{{userId}}"
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "Admin (Words)",
+      "item": [
+
+        {
+          "name": "Add Words",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"words\": [\"banana\", \"tiger\", \"rocket\"]\n}"
+            },
+            "url": "{{base_url}}/api/admin/words"
+          }
+        },
+
+        {
+          "name": "List Words",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/admin/words"
+          }
+        },
+
+        {
+          "name": "Delete Word",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/admin/words/{{wordId}}"
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/health"
+          }
+        }
+      ]
+    }
+
+  ]
+}
