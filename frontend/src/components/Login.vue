@@ -1,11 +1,12 @@
 <template>
-  <div>
-    <h2>Log In</h2>
-    <input v-model="email" placeholder="Email" />
-    <input v-model="password" placeholder="Password" type="password" @keyup.enter="login" />
-    <button @click="login">Log In</button>
-    <p style="color: red">{{ error }}</p>
-    <p><button @click="$emit('toggle')">No Account? Register!</button></p>
+  <div class="auth-card">
+    <h2>Welcome back</h2>
+    <p class="subtitle">Log in to continue playing</p>
+    <input v-model="email" type="email" placeholder="Email" />
+    <input v-model="password" type="password" placeholder="Password" @keyup.enter="login" />
+    <p v-if="error" class="error-text">{{ error }}</p>
+    <button class="btn-primary" @click="login">Log In →</button>
+    <button class="toggle-link" @click="$emit('toggle')">No account? <span>Register</span></button>
   </div>
 </template>
 

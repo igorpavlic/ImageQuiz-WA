@@ -28,8 +28,14 @@
         :wordList="wordList" 
         :fetchImage="fetchImage" 
       />
-      <p>Player: {{ user.email }}</p>
-      <button @click="logout">Log Out</button>
+
+      <div class="player-bar">
+        <div class="player-info">
+          <div class="avatar">{{ user.email.substring(0, 2).toUpperCase() }}</div>
+          <span class="player-email">{{ user.email }}</span>
+        </div>
+        <button class="btn-secondary" @click="logout">Log Out</button>
+      </div>
 
       <AdminPanel v-if="user.role === 'admin'" />
       <Highscore :currentUser="user" />
@@ -69,7 +75,6 @@ const logout = () => {
   user.value = null
 }
 
-// Check for existing token on mount
 onMounted(() => {
   const savedUser = localStorage.getItem('user')
   const token = localStorage.getItem('token')

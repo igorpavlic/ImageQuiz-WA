@@ -1,7 +1,7 @@
 <template>
   <div class="highscore-panel">
-    <a href="#" @click.prevent="toggleHighscore">
-      {{ showHighscore ? '❌ Close Highscore' : '🏆 View Highscores' }}
+    <a href="#" @click.prevent="toggleHighscore" class="btn-highscore">
+      {{ showHighscore ? '❌ Close Highscore' : '🏆 Highscores' }}
     </a>
 
     <div v-if="showHighscore" class="highscore-popup">
@@ -63,7 +63,6 @@ const loadHighscores = async () => {
     const { data } = await api.get('/highscore')
     topPlayers.value = data
 
-    // Get current user's rank if not in top 10
     if (props.currentUser?.id) {
       const rankRes = await api.get(`/highscore/rank/${props.currentUser.id}`)
       userRank.value = rankRes.data

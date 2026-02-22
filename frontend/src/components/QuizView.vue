@@ -1,20 +1,44 @@
 <template>
   <div>
-    <div>
-      <div v-if="isLoading" class="wrapper">
-        <h2>Generating image...</h2>
-        <div class="spinner-circle"></div>
-      </div>
-      <div v-else class="wrapper">
-        <h2>What do you see?</h2>
-        <img :src="imageUrl" />
-        <p class="answer-popup">{{ result }}</p>
+    <!-- Score Strip -->
+    <div class="score-strip">
+      <div class="score-left">
+        <div class="score-number">{{ score }}</div>
+        <div class="score-label">Points</div>
       </div>
     </div>
-    <div>
-      <input v-model="userAnswer" placeholder="Write here" @keyup.enter="handleEnterPress" ref="answerInput"/>
-      <button @click="checkAnswer" :disabled="isLoading">Check</button>
-      <p>Points: {{ score }}</p>
+
+    <!-- Loading State -->
+    <div v-if="isLoading" class="wrapper">
+      <h2>Generating image...</h2>
+      <div class="spinner-circle"></div>
+    </div>
+
+    <!-- Image Card -->
+    <div v-else class="image-card">
+      <div class="image-wrapper">
+        <img :src="imageUrl" alt="Quiz image" />
+      </div>
+      <div class="image-footer">
+        <span class="label">👁️ What do you see?</span>
+        <span class="hint">Type below</span>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <p v-if="result" class="answer-popup">{{ result }}</p>
+
+    <!-- Answer Input -->
+    <div class="answer-section">
+      <input 
+        v-model="userAnswer" 
+        type="text"
+        placeholder="Your answer..." 
+        @keyup.enter="handleEnterPress" 
+        ref="answerInput"
+        style="margin-bottom: 0;"
+      />
+      <button class="btn-check" @click="checkAnswer" :disabled="isLoading">Check →</button>
     </div>
   </div>
 </template>
@@ -66,7 +90,7 @@ const checkAnswer = async () => {
     return
   }
   if (userAnswer.value.toLowerCase() === correctWord.value.toLowerCase()) {
-    result.value = '✅ Correct!'
+    result.value = '✅ Correct! Nice one!'
     score.value++
     try {
       await api.patch('/quiz/score', { score: score.value })
@@ -74,7 +98,7 @@ const checkAnswer = async () => {
       console.error('Error updating score:', err)
     }
   } else {
-    result.value = `❌ Wrong. Correct answer: ${correctWord.value}`
+    result.value = `❌ Wrong. The answer was: ${correctWord.value}`
   }
   setTimeout(loadNewImage, 1000)
 }
