@@ -5,6 +5,12 @@ import { getDB } from '../config/db.js'
 
 const router = Router()
 
+// Email validation helper
+const isValidEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email)
+}
+
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
@@ -13,6 +19,10 @@ router.post('/register', async (req, res) => {
 
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required.' })
+    }
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ error: 'Invalid email format.' })
     }
 
     if (password.length < 6) {
@@ -58,6 +68,10 @@ router.post('/login', async (req, res) => {
 
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required.' })
+    }
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ error: 'Invalid email format.' })
     }
 
     const user = await db.collection('users').findOne({ email: email.toLowerCase() })
