@@ -56,6 +56,51 @@ header h1 {
   color: var(--text);
 }
 
+/* ========== Navigation Bar ========== */
+.nav-bar {
+  display: flex;
+  gap: 6px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 6px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+
+.nav-link {
+  flex: 1;
+  text-align: center;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg);
+}
+
+.nav-link.router-link-active {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 2px 8px rgba(232, 104, 51, 0.25);
+}
+
+.nav-link--admin {
+  flex: 0.7;
+}
+
+.nav-link--admin.router-link-active {
+  background: var(--text);
+  color: white;
+  box-shadow: 0 2px 8px rgba(42, 37, 34, 0.2);
+}
+
 /* ========== Score Strip ========== */
 .score-strip {
   display: flex;
@@ -177,6 +222,18 @@ header h1 {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* ========== Loading State ========== */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 0;
+  color: var(--text-dim);
+  font-style: italic;
 }
 
 /* ========== Answer Area ========== */
@@ -630,5 +687,15 @@ footer {
   .score-item {
     font-size: 0.85rem;
     padding: 10px 12px;
+  }
+
+  .nav-bar {
+    gap: 4px;
+    padding: 4px;
+  }
+
+  .nav-link {
+    padding: 8px 8px;
+    font-size: 0.8rem;
   }
 }
