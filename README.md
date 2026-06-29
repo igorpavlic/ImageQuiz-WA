@@ -1,88 +1,231 @@
-# ImageQuiz-WA
+# 🧠 Image Quiz
 
-ImageQuiz-WA je interaktivna web aplikacija razvijena u sklopu kolegija Web aplikacije na FIPU. Glavna funkcionalnost aplikacije je kviz u kojem korisnici pogađaju pojmove na temelju slika generiranih pomoću umjetne inteligencije.
+Interaktivna kviz aplikacija gdje korisnici pogađaju što prikazuje AI-generirana slika.
 
 ## Tehnologije
 
-Projekt koristi moderan tehnološki stog za full-stack razvoj:
+| Sloj | Tehnologija |
+|------|-------------|
+| Frontend | Vue.js 3 (Composition API) + Vite |
+| Backend | Node.js + Express.js |
+| Baza podataka | MongoDB Atlas (službeni `mongodb` driver) |
+| Autentifikacija | JWT (JSON Web Tokens) + bcryptjs |
+| AI slike | DeepAI Text-to-Image API |
+| HTTP klijent | Axios |
+| Testiranje API-ja | Postman |
 
-- Frontend: Vue.js 3 (Composition API) uz Vite razvojni alat.
-- Backend: Node.js i Express.js okvir.
-- Baza podataka: MongoDB (Atlas) uz Mongoose ODM.
-- Autentifikacija: JSON Web Tokens (JWT) i bcrypt za enkripciju lozinki.
-- AI integracija: DeepAI Text-to-Image API.
-- HTTP klijent: Axios.
-- Testiranje: Postman.
+> **Napomena:** baza se koristi izravno preko službenog `mongodb` drivera
+> (`MongoClient` + `db.collection(...)`), bez ODM sloja poput Mongoosea.
+
+## Struktura projekta
+
+```
+image-quiz-project/
+├── backend/
+│   ├── config/db.js            # MongoDB konekcija (connectDB, getDB)
+│   ├── middleware/auth.js       # JWT middleware (auth + adminOnly)
+│   ├── routes/
+│   │   ├── auth.js             # POST /api/auth/register, /api/auth/login
+│   │   ├── quiz.js             # GET /api/quiz/words, GET|PATCH /api/quiz/score
+│   │   ├── highscore.js        # GET /api/highscore, /api/highscore/rank/:id
+│   │   └── admin.js            # POST|GET|DELETE /api/admin/words
+│   ├── server.js               # Express server
+│   ├── package.json
+│   └── .env.example
+├── frontend/
+│   ├── src/
+│   │   ├── api/index.js        # Axios instance + JWT interceptor
+│   │   ├── assets/main.css     # Stilovi
+│   │   ├── components/
+│   │   │   ├── Login.vue       # Login forma
+│   │   │   ├── Register.vue    # Registracija
+│   │   │   ├── QuizView.vue    # Kviz gameplay
+│   │   │   ├── DataProvider.vue # Dohvat riječi + DeepAI (renderless)
+│   │   │   ├── AdminPanel.vue  # Admin dodavanje/brisanje riječi
+│   │   │   ├── Highscore.vue   # Top 10 igrača
+│   │   │   ├── Header.vue
+│   │   │   └── Footer.vue
+│   │   ├── App.vue             # korijenska komponenta (uvjetni prikaz ekrana)
+│   │   └── main.js
+│   ├── index.html
+│   ├── vite.config.js          # Vite + proxy na backend
+│   ├── package.json
+│   └── .env.example
+├── .gitignore
+└── README.md
+```
+
+> **Napomena o usmjeravanju:** aplikacija ne koristi Vue Router. Korijenska
+> komponenta `App.vue` uvjetno prikazuje ekrane ovisno o stanju prijave (`user`)
+> i odabranom načinu (`login` / `register`); admin panel se prikazuje samo kad
+> je `user.role === 'admin'`.
 
 ## REST API Endpoints
 
-### Autentifikacija
-| Metoda | Endpoint | Opis | Autentifikacija |
-|---|---|---|---|
-| POST | /api/auth/register | Registracija novog korisnika | Nije potrebna |
-| POST | /api/auth/login | Prijava korisnika | Nije potrebna |
+### Auth
+| Metoda | Endpoint | Opis | Auth |
+|--------|----------|------|------|
+| POST | `/api/auth/register` | Registracija korisnika | ❌ |
+| POST | `/api/auth/login` | Prijava korisnika | ❌ |
 
-### Kviz i rezultati
-| Metoda | Endpoint | Opis | Autentifikacija |
-|---|---|---|---|
-| GET | /api/quiz/words | Dohvat svih riječi za kviz | Da (JWT) |
-| GET | /api/quiz/score | Dohvat bodova trenutnog korisnika | Da (JWT) |
-| PATCH | /api/quiz/score | Ažuriranje korisničkih bodova | Da (JWT) |
+### Quiz
+| Metoda | Endpoint | Opis | Auth |
+|--------|----------|------|------|
+| GET | `/api/quiz/words` | Dohvati sve riječi | ✅ JWT |
+| GET | `/api/quiz/score` | Dohvati score korisnika | ✅ JWT |
+| PATCH | `/api/quiz/score` | Ažuriraj score | ✅ JWT |
 
-### Ljestvica poretka (Highscore)
-| Metoda | Endpoint | Opis | Autentifikacija |
-|---|---|---|---|
-| GET | /api/highscore | Prikaz top 10 igrača | Nije potrebna |
-| GET | /api/highscore/rank/:userId | Prikaz ranga određenog korisnika | Nije potrebna |
+### Highscore
+| Metoda | Endpoint | Opis | Auth |
+|--------|----------|------|------|
+| GET | `/api/highscore` | Top 10 igrača | ❌ |
+| GET | `/api/highscore/rank/:userId` | Rank korisnika | ❌ |
 
-### Administracija (Samo za admine)
-| Metoda | Endpoint | Opis | Autentifikacija |
-|---|---|---|---|
-| POST | /api/admin/words | Dodavanje novih riječi u bazu | Da (JWT + Admin role) |
-| GET | /api/admin/words | Pregled svih riječi u bazi | Da (JWT + Admin role) |
-| DELETE | /api/admin/words/:id | Brisanje riječi iz baze | Da (JWT + Admin role) |
+### Admin
+| Metoda | Endpoint | Opis | Auth |
+|--------|----------|------|------|
+| POST | `/api/admin/words` | Dodaj riječi | ✅ JWT + Admin |
+| GET | `/api/admin/words` | Listaj sve riječi | ✅ JWT + Admin |
+| DELETE | `/api/admin/words/:id` | Obriši riječ | ✅ JWT + Admin |
 
-## Instalacija i postavljanje
+### Ostalo
+| Metoda | Endpoint | Opis | Auth |
+|--------|----------|------|------|
+| GET | `/api/health` | Provjera stanja poslužitelja | ❌ |
 
-### 1. Baza podataka (MongoDB Atlas)
-1. Kreirajte besplatni klaster na mongodb.com/atlas.
-2. Izradite Database User (korisničko ime i lozinka).
-3. U Network Access postavkama dopustite pristup s bilo koje adrese (0.0.0.0/0).
-4. Kopirajte Connection String za povezivanje.
+## Instalacija
 
-### 2. Backend postavljanje
-1. Navigirajte u direktorij /backend.
-2. Kreirajte .env datoteku i definirajte varijable: MONGO_URI, JWT_SECRET i PORT.
-3. Pokrenite naredbe:
-   npm install
-   node index.js
+### 1. MongoDB Atlas
 
-### 3. Frontend postavljanje
-1. Navigirajte u direktorij /frontend.
-2. Kreirajte .env datoteku i definirajte VITE_API_BASE_URL.
-3. Pokrenite naredbe:
-   npm install
-   npm run dev
-4. Aplikacija će biti dostupna na adresi http://localhost:5173.
+1. Idi na [mongodb.com/atlas](https://www.mongodb.com/atlas) i kreiraj besplatni klaster
+2. Kreiraj Database User (username + password)
+3. U Network Access dodaj `0.0.0.0/0` (Allow Access from Anywhere)
+4. Kopiraj Connection String
 
-### 4. Postavljanje administratora
-Nakon standardne registracije putem aplikacije, potrebno je ručno promijeniti polje "role" na "admin" unutar MongoDB Atlas sučelja ili MongoDB Compassa za željenog korisnika.
+### 2. Backend
 
-## Migracija: s Firebase-a na Express + MongoDB
+```bash
+cd backend
+npm install
+cp .env.example .env
+```
 
-Projekt je prošao značajnu arhitektonsku promjenu radi veće kontrole nad podacima i logikom:
-- Firebase Auth zamijenjen je vlastitim JWT + bcrypt sustavom.
-- Cloud Firestore zamijenjen je MongoDB Atlas bazom podataka.
-- Firebase SDK zamijenjen je standardnim Axios HTTP zahtjevima prema vlastitom backendu.
-- Autentifikacija se održava putem lokalne pohrane (localStorage) i provjere tokena pri učitavanju.
+Uredi `.env`:
+```
+PORT=3000
+MONGO_URI=mongodb+srv://username:password@cluster0.xxxxx.mongodb.net
+DB_NAME=image-quiz
+JWT_SECRET=promijeni_ovo_u_random_string_min_32_znaka
+```
+
+> **Važno:** naziv baze čita se iz `DB_NAME` (`client.db(process.env.DB_NAME)`),
+> a ne iz putanje u `MONGO_URI`. Ako `DB_NAME` izostane, konekcija će ciljati
+> nedefiniranu bazu.
+
+Pokreni:
+```bash
+npm run dev
+```
+
+### 3. Frontend
+
+```bash
+cd frontend
+npm install
+cp .env.example .env
+```
+
+Uredi `.env`:
+```
+VITE_API_URL=http://localhost:3000/api
+VITE_DEEPAI_API_KEY=tvoj_deepai_api_key
+```
+
+Pokreni:
+```bash
+npm run dev
+```
+
+Aplikacija će biti na `http://localhost:5173`
+
+### 4. Kreiranje admin korisnika
+
+Registriraj se normalno, zatim u MongoDB Compassu ili Atlasu promijeni `role` polje na `"admin"`:
+
+```javascript
+db.users.updateOne(
+  { email: "tvoj@email.com" },
+  { $set: { role: "admin" } }
+)
+```
+
+## Postman testiranje
+
+Importiraj `postman-collection.json` u Postman i testiraj sve endpointe:
+
+### Register
+```
+POST http://localhost:3000/api/auth/register
+Body (JSON): { "email": "test@test.com", "password": "123456" }
+```
+
+### Login
+```
+POST http://localhost:3000/api/auth/login
+Body (JSON): { "email": "test@test.com", "password": "123456" }
+→ Kopiraj token iz responsea
+```
+
+### Get Words (zaštićeno)
+```
+GET http://localhost:3000/api/quiz/words
+Headers: Authorization: Bearer <token>
+```
+
+### Update Score (zaštićeno)
+```
+PATCH http://localhost:3000/api/quiz/score
+Headers: Authorization: Bearer <token>
+Body (JSON): { "score": 5 }
+```
+
+### Highscores (javno)
+```
+GET http://localhost:3000/api/highscore
+```
+
+### Add Words (admin)
+```
+POST http://localhost:3000/api/admin/words
+Headers: Authorization: Bearer <admin_token>
+Body (JSON): { "words": ["dog", "car", "house", "tree"] }
+```
+
+## Migracija: Firebase → Express + MongoDB
+
+| Prije (Firebase) | Poslije (Express + MongoDB) |
+|---|---|
+| Firebase Auth | JWT + bcryptjs |
+| Firestore | MongoDB Atlas (`mongodb` driver) |
+| `firebase/auth` SDK | Axios → `/api/auth/*` |
+| `firebase/firestore` SDK | Axios → `/api/quiz/*`, `/api/highscore/*` |
+| `onAuthStateChanged()` | localStorage token + provjera na mount |
+| `signInWithEmailAndPassword()` | `POST /api/auth/login` |
+| `createUserWithEmailAndPassword()` | `POST /api/auth/register` |
+| `getDocs(collection(db, 'words'))` | `GET /api/quiz/words` |
+| `updateDoc(doc(db, 'users', uid))` | `PATCH /api/quiz/score` |
+| Hardkodiran ownerEmail | `role: 'admin'` u MongoDB |
+| Firebase config (.env) | MongoDB URI + JWT_SECRET (.env) |
+
+## Poznata ograničenja
+
+- **Manipulacija rezultatom:** `PATCH /api/quiz/score` prihvaća proizvoljnu
+  vrijednost s klijenta. Sigurnije rješenje je provjera odgovora na poslužitelju.
+- **DeepAI ključ na klijentu:** `VITE_DEEPAI_API_KEY` je ugrađen u frontend i
+  poziva se izravno iz preglednika; razmotriti posredovanje preko backenda.
+- **Stroga usporedba odgovora:** ne podržava sinonime, množinu ni manje
+  pravopisne pogreške.
 
 ## Autor
 
-**Igor Pavlić**
-- GitHub: [@igorpavlic](https://github.com/igorpavlic)
-
-## Akademske informacije
-
-**[Fakultet informatike u Puli](https://fipu.unipu.hr/)**
-- Kolegij: **[Web aplikacije](https://ntankovic.unipu.hr/wa)**
-- Mentor: **[doc. dr. sc. Nikola Tanković](https://ntankovic.unipu.hr)**
+Igor Pavlić - FIPU Web Applications 25/26
