@@ -17,7 +17,7 @@ const loadWords = async () => {
     const { data } = await api.get('/quiz/words')
     emit('wordsLoaded', data)
   } catch (err) {
-    console.error('Greška kod učitavanja riječi:', err)
+    console.error('Error loading words:', err)
     emit('wordsLoaded', [])
   }
 }

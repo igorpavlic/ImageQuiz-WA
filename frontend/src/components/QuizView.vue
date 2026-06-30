@@ -35,7 +35,6 @@
         type="text"
         placeholder="Your answer..." 
         @keyup.enter="handleEnterPress" 
-        ref="answerInput"
         style="margin-bottom: 0;"
       />
       <button class="btn-check" @click="checkAnswer" :disabled="isLoading">Check →</button>
@@ -53,7 +52,6 @@ const userAnswer = ref('')
 const result = ref('')
 const score = ref(0)
 const isLoading = ref(false)
-const answerInput = ref(null)
 
 const props = defineProps({
   wordList: Array,
@@ -85,11 +83,14 @@ const handleEnterPress = () => {
 }
 
 const checkAnswer = async () => {
-  if (userAnswer.value.toLowerCase() === '') {
+  const answer = userAnswer.value.trim().toLowerCase()
+
+  if (answer === '') {
     result.value = '⚠️ Please enter an answer and try again.'
     return
   }
-  if (userAnswer.value.toLowerCase() === correctWord.value.toLowerCase()) {
+
+  if (answer === correctWord.value.toLowerCase()) {
     result.value = '✅ Correct! Nice one!'
     score.value++
     try {
@@ -100,6 +101,7 @@ const checkAnswer = async () => {
   } else {
     result.value = `❌ Wrong. The answer was: ${correctWord.value}`
   }
+
   setTimeout(loadNewImage, 1000)
 }
 
